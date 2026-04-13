@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>잠뜰 TV 팬 앱</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sky: #56b4f5;
+  --sky-deep: #2196e0;
+  --sky-soft: #c8e9ff;
+  --sky-pale: #e8f6ff;
+  --sky-mist: #f0f9ff;
+  --white: #ffffff;
+  --bg: #f0f8ff;
+  --card: #ffffff;
+  --text: #2d3a4a;
+  --text-sub: #7a9bb5;
+  --border: rgba(86,180,245,0.2);
+  --border-strong: rgba(86,180,245,0.4);
+  --shadow: 0 4px 16px rgba(86,180,245,0.15);
+  --shadow-sm: 0 2px 8px rgba(86,180,245,0.12);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app-wrap {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 60px;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 20px rgba(33,150,224,0.3);
+}
+.header-inner {
+  max-width: 100%; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  padding: 15px 0 13px; gap: 10px;
+}
+.logo-icon {
+  width: 40px; height: 40px; border: 4px solid white; ; border-radius: 50%;
+  display: flex; object-fit: cover;
+}
+.logo-text {
+  font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700;
+  color: white; text-shadow: 0 1px 4px rgba(0,0,0,0.15); letter-spacing: 0.5px;
+}
+
+/* NAV */
+.nav-bar {
+  background: white; border-bottom: 2px solid var(--sky-soft);
+  position: sticky; top: 70px; z-index: 99; box-shadow: var(--shadow-sm);
+}
+.nav-inner { max-width: 100%; margin: 0 auto; padding: 0 60px; display: flex; }
+.nav-btn {
+  flex: 1; padding: 12px 8px; border: none; background: transparent;
+  font-size: 14px; font-weight: 500; color: var(--text-sub); cursor: pointer;
+  border-bottom: 3px solid transparent; font-family: inherit; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.nav-btn .ni { font-size: 16px; }
+.nav-btn.active { color: var(--sky-deep); border-bottom-color: var(--sky); }
+.nav-btn:hover:not(.active) { color: var(--sky); }
+
+/* PANELS */
+.panel { display: none; padding-top: 22px; }
+.panel.active { display: block; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
+.stat-card {
+  background: var(--card); border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); padding: 14px 10px; text-align: center;
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.stat-card::after {
+  content: ''; position: absolute; top: -14px; right: -14px;
+  width: 55px; height: 55px; background: var(--sky-pale); border-radius: 50%;
+}
+.stat-num {
+  font-family: 'Gaegu', cursive; font-size: 30px; font-weight: 700;
+  color: var(--sky-deep); line-height: 1; position: relative; z-index: 1;
+}
+.stat-label { font-size: 11px; color: var(--text-sub); margin-top: 4px; position: relative; z-index: 1; }
+
+/* SECTION HEADER */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-family: 'Gaegu', cursive; font-size: 19px; font-weight: 700; color: var(--sky-deep); }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);
+  color: white; border: none; border-radius: 100px; padding: 8px 16px;
+  font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(86,180,245,0.4); transition: all 0.2s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(86,180,245,0.5); }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: white; color: var(--text-sub); border: 1.5px solid var(--border-strong);
+  border-radius: 100px; padding: 7px 14px; font-size: 13px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
+}
+.btn-ghost:hover { background: var(--sky-pale); color: var(--sky-deep); border-color: var(--sky); }
+
+.btn-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1.5px solid var(--border-strong); background: white;
+  color: var(--text-sub); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.btn-icon:hover { background: var(--sky-pale); color: var(--sky-deep); border-color: var(--sky); }
+
+.btn-danger {
+  background: white; color: #e87676; border: 1.5px solid #ffcece;
+  border-radius: 100px; padding: 6px 12px; font-size: 12px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
+}
+.btn-danger:hover { background: #fff0f0; }
+
+/* SERIES CARDS */
+.series-list { display: flex; flex-direction: column; gap: 14px; }
+.series-card {
+  background: var(--card); border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.series-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(86,180,245,0.2); }
+
+.series-card-head { display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+.series-icon {
+  width: 52px; height: 52px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+}
+.series-info { flex: 1; min-width: 0; }
+.series-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.series-desc { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.progress-wrap { margin-top: 9px; }
+.progress-bar { height: 6px; background: var(--sky-pale); border-radius: 4px; overflow: hidden; }
+.progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--sky) 0%, var(--sky-deep) 100%);
+  transition: width 0.4s ease;
+}
+.progress-text { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+.series-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+.expand-btn {
+  background: var(--sky-pale); border: 1.5px solid var(--sky-soft);
+  border-radius: 100px; color: var(--sky-deep);
+  font-size: 12px; font-weight: 500; font-family: inherit;
+  cursor: pointer; padding: 4px 12px; margin-top: 6px; transition: all 0.15s;
+}
+.expand-btn:hover { background: var(--sky-soft); }
+
+/* EPISODE LIST */
+.ep-list {
+  border-top: 2px dashed var(--sky-soft); padding: 12px 18px;
+  display: none; background: var(--sky-mist);
+}
+.ep-list.open { display: block; }
+.ep-add-form { display: flex; gap: 8px; margin-bottom: 10px; }
+.ep-add-form input {
+  flex: 1; padding: 8px 14px; border: 1.5px solid var(--border-strong);
+  border-radius: 100px; font-size: 13px; font-family: inherit;
+  background: white; color: var(--text); outline: none;
+}
+.ep-add-form input:focus { border-color: var(--sky); }
+
+.ep-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: var(--radius-xs);
+  cursor: pointer; transition: background 0.1s; user-select: none;
+}
+.ep-item:hover { background: rgba(86,180,245,0.08); }
+.ep-num { font-size: 11px; color: var(--text-sub); min-width: 28px; flex-shrink: 0; }
+.ep-title { font-size: 13px; color: var(--text); flex: 1; }
+.ep-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--sky-soft); background: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: transparent; flex-shrink: 0;
+  transition: all 0.2s; pointer-events: none;
+}
+.ep-check.done {
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);
+  border-color: var(--sky); color: white; box-shadow: 0 2px 6px rgba(86,180,245,0.4);
+}
+.ep-del {
+  background: transparent; border: none; color: transparent;
+  cursor: pointer; font-size: 16px; line-height: 1;
+  padding: 2px 5px; border-radius: 4px; flex-shrink: 0; transition: all 0.1s;
+}
+.ep-item:hover .ep-del { color: var(--text-sub); }
+.ep-del:hover { color: #e87676 !important; }
+
+/* SINGLES */
+.single-list { display: flex; flex-direction: column; gap: 10px; }
+.single-card {
+  background: var(--card); border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
+}
+.single-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.single-icon {
+  width: 48px; height: 48px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+}
+.single-info { flex: 1; min-width: 0; }
+.single-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.single-desc { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.single-date { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+.single-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.single-check-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--sky-soft); background: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; flex-shrink: 0;
+  transition: all 0.2s; color: var(--text-sub);
+}
+.single-check-btn.done {
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);
+  border-color: var(--sky); color: white; box-shadow: 0 2px 8px rgba(86,180,245,0.4);
+}
+
+/* ADD SINGLE INLINE FORM */
+.add-single-form {
+  background: white; border: 2px dashed var(--sky-soft);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 14px; display: none;
+}
+.add-single-form.open { display: block; }
+
+/* REVIEWS */
+.review-write-btn {
+  width: 100%; padding: 14px; border: 2px dashed var(--sky-soft);
+  background: white; border-radius: var(--radius); color: var(--text-sub);
+  font-size: 14px; font-family: inherit; cursor: pointer; margin-bottom: 16px;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.review-write-btn:hover { border-color: var(--sky); color: var(--sky-deep); background: var(--sky-mist); }
+
+.review-form {
+  background: var(--card); border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+  display: none; box-shadow: var(--shadow);
+}
+.review-form.open { display: block; }
+.review-form textarea {
+  width: 100%; min-height: 100px; padding: 12px 14px;
+  border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+  font-size: 14px; font-family: inherit; background: var(--sky-mist);
+  color: var(--text); resize: vertical; outline: none; line-height: 1.7;
+}
+.review-form textarea:focus { border-color: var(--sky); box-shadow: 0 0 0 3px var(--sky-pale); }
+
+.review-meta-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+.review-meta-row select {
+  padding: 8px 12px; border: 1.5px solid var(--border-strong);
+  border-radius: 100px; font-size: 13px; font-family: inherit;
+  background: white; color: var(--text); outline: none; cursor: pointer;
+}
+.star-row { display: flex; gap: 3px; }
+.star { font-size: 22px; cursor: pointer; color: #ddd; transition: all 0.1s; line-height: 1; }
+.star.lit { color: #FFB830; }
+.star:hover { transform: scale(1.2); }
+
+.review-form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+.review-list { display: flex; flex-direction: column; gap: 12px; }
+.review-card {
+  background: var(--card); border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); padding: 16px 18px;
+  box-shadow: var(--shadow-sm); animation: popIn 0.22s ease;
+}
+@keyframes popIn { from { opacity:0; transform:scale(0.97) translateY(6px); } to { opacity:1; transform:none; } }
+
+.review-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 10px; margin-bottom: 10px;
+}
+.review-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500; padding: 4px 10px;
+  border-radius: 100px; background: var(--sky-pale);
+  color: var(--sky-deep); border: 1px solid var(--sky-soft);
+}
+.review-stars { color: #FFB830; font-size: 14px; }
+.review-body { font-size: 14px; color: var(--text); line-height: 1.75; white-space: pre-wrap; }
+.review-date { font-size: 11px; color: var(--text-sub); margin-top: 10px; }
+.review-del-btn {
+  background: transparent; border: none; color: var(--text-sub);
+  cursor: pointer; font-size: 18px; padding: 2px 4px;
+  border-radius: 4px; flex-shrink: 0; transition: all 0.1s; line-height: 1;
+}
+.review-del-btn:hover { color: #e87676; }
+
+/* FORM SHARED */
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 12px; font-weight: 500; color: var(--sky-deep); margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--border-strong);
+  border-radius: 100px; font-size: 14px; font-family: inherit;
+  background: var(--sky-mist); color: var(--text); outline: none; transition: all 0.15s;
+}
+.form-input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px var(--sky-pale); background: white; }
+
+.emoji-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.emoji-pick {
+  width: 36px; height: 36px; border: 2px solid var(--border-strong);
+  border-radius: var(--radius-xs); background: var(--sky-mist);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.emoji-pick:hover { border-color: var(--sky); background: var(--sky-pale); transform: scale(1.1); }
+.emoji-pick.selected { border-color: var(--sky-deep); background: var(--sky-pale); }
+
+.color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.color-pick {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2.5px solid transparent; cursor: pointer; transition: all 0.15s; outline: none;
+}
+.color-pick:hover { transform: scale(1.2); }
+.color-pick.selected { border-color: var(--sky-deep); transform: scale(1.15); box-shadow: 0 0 0 2px white, 0 0 0 4px var(--sky); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(33,100,160,0.3);
+  backdrop-filter: blur(4px); z-index: 200;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: white; border: 2px solid var(--sky-soft);
+  border-radius: var(--radius); padding: 24px; width: 100%; max-width: 440px;
+  box-shadow: 0 20px 60px rgba(33,150,224,0.25);
+  transform: translateY(12px) scale(0.97); transition: transform 0.25s;
+}
+.modal-overlay.open .modal { transform: none; }
+.modal-title {
+  font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+  color: var(--sky-deep); margin-bottom: 18px;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+/* EMPTY */
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-sub); font-size: 14px; line-height: 1.8; }
+.empty-state .ei { font-size: 48px; margin-bottom: 12px; }
+/* ============================================
+   📱 모바일 반응형 (768px 이하)
+============================================ */
+@media (max-width: 768px) {
+
+  /* 헤더 */
+  header { padding: 0 12px; }
+  .header-inner { padding: 12px 0 10px; gap: 8px; }
+  .logo-icon { width: 34px; height: 34px; border-width: 3px; }
+  .logo-text { font-size: 19px; }
+
+  /* 네비게이션 */
+  .nav-bar { top: 56px; }
+  .nav-inner { padding: 0 6px; }
+  .nav-btn { padding: 10px 4px; font-size: 12px; gap: 3px; }
+  .nav-btn .ni { font-size: 14px; }
+
+  /* 메인 래퍼 */
+  .app-wrap { padding: 0 14px; }
+
+  /* 통계 카드 */
+  .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+  .stat-card { padding: 12px 6px; }
+  .stat-num { font-size: 24px; }
+  .stat-label { font-size: 10px; }
+
+  /* 섹션 헤더 */
+  .section-header { flex-wrap: wrap; gap: 10px; }
+  .section-title { font-size: 17px; }
+
+  /* 버튼 공통 - 터치 최적화 */
+  .btn-primary { min-height: 44px; padding: 10px 18px; font-size: 14px; }
+  .btn-ghost { min-height: 44px; padding: 10px 16px; font-size: 14px; }
+  .btn-danger { min-height: 40px; padding: 8px 14px; font-size: 13px; }
+  .btn-icon { width: 38px; height: 38px; font-size: 16px; }
+
+  /* 시리즈 카드 */
+  .series-card-head { flex-wrap: wrap; padding: 14px; gap: 10px; }
+  .series-icon { width: 44px; height: 44px; font-size: 22px; }
+  .series-name { font-size: 14px; }
+  .series-desc { font-size: 11px; }
+  .series-actions { width: 100%; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .expand-btn { min-height: 36px; padding: 6px 14px; font-size: 13px; }
+
+  /* 에피소드 리스트 */
+  .ep-list { padding: 10px 14px; }
+  .ep-add-form { flex-direction: column; gap: 8px; }
+  .ep-add-form input { min-height: 44px; font-size: 14px; padding: 10px 14px; }
+  .ep-add-form .btn-primary { width: 100%; justify-content: center; }
+  .ep-item { padding: 10px 8px; gap: 8px; }
+  .ep-num { font-size: 12px; min-width: 32px; }
+  .ep-title { font-size: 14px; }
+  .ep-check { width: 28px; height: 28px; font-size: 13px; }
+  .ep-del { font-size: 20px; padding: 4px 8px; color: var(--text-sub) !important; }
+
+  /* 단편 영상 카드 */
+  .single-card { flex-wrap: wrap; padding: 14px; gap: 10px; }
+  .single-icon { width: 42px; height: 42px; font-size: 20px; }
+  .single-name { font-size: 14px; }
+  .single-desc { font-size: 12px; }
+  .single-date { font-size: 11px; }
+  .single-actions { width: 100%; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+  .single-check-btn { width: 44px; height: 44px; font-size: 18px; }
+
+  /* 단편 추가 폼 */
+  .add-single-form { padding: 16px 14px; }
+  .form-input { min-height: 44px; font-size: 16px; padding: 10px 14px; }
+  .emoji-pick { width: 40px; height: 40px; font-size: 20px; }
+  .color-pick { width: 34px; height: 34px; }
+
+  /* 후기 */
+  .review-write-btn { min-height: 48px; font-size: 15px; padding: 14px; }
+  .review-form { padding: 16px 14px; }
+  .review-form textarea { min-height: 120px; font-size: 16px; padding: 12px; }
+  .review-meta-row { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .review-meta-row select { min-height: 44px; font-size: 14px; width: 100%; padding: 10px 14px; }
+  .star-row { gap: 6px; }
+  .star { font-size: 28px; }
+  .review-form-actions { flex-direction: column; gap: 8px; }
+  .review-form-actions .btn-primary,
+  .review-form-actions .btn-ghost { width: 100%; justify-content: center; min-height: 48px; }
+
+  .review-card { padding: 14px; }
+  .review-card-top { flex-wrap: wrap; gap: 8px; }
+  .review-tag { font-size: 12px; padding: 5px 12px; }
+  .review-stars { font-size: 16px; }
+  .review-body { font-size: 14px; line-height: 1.8; }
+  .review-date { font-size: 12px; }
+  .review-del-btn { font-size: 22px; padding: 4px 8px; }
+
+  /* 모달 */
+  .modal-overlay { padding: 16px; align-items: flex-end; }
+  .modal { padding: 20px 18px; border-radius: 18px 18px 8px 8px; max-height: 85vh; overflow-y: auto; }
+  .modal-title { font-size: 18px; }
+  .modal-actions { flex-direction: column; gap: 8px; }
+  .modal-actions .btn-primary,
+  .modal-actions .btn-ghost { width: 100%; justify-content: center; min-height: 48px; }
+
+  /* 빈 상태 */
+  .empty-state { padding: 36px 16px; font-size: 14px; }
+  .empty-state .ei { font-size: 40px; }
+}
+
+/* ============================================
+   📱 더 작은 화면 (480px 이하)
+============================================ */
+@media (max-width: 480px) {
+
+  .app-wrap { padding: 0 10px; }
+
+  .logo-text { font-size: 17px; }
+
+  .nav-btn { font-size: 11px; padding: 9px 2px; }
+  .nav-btn .ni { font-size: 13px; }
+
+  .stat-num { font-size: 22px; }
+  .stat-label { font-size: 9px; }
+  .stat-card { padding: 10px 4px; }
+
+  .series-card-head { padding: 12px; }
+  .series-icon { width: 40px; height: 40px; font-size: 20px; }
+
+  .single-icon { width: 38px; height: 38px; font-size: 18px; }
+
+  .emoji-pick { width: 36px; height: 36px; font-size: 18px; }
+  .color-pick { width: 30px; height: 30px; }
+
+  .modal { padding: 18px 14px; }
+}
+
+/* ============================================
+   ✋ 터치 디바이스 최적화
+============================================ */
+@media (hover: none) and (pointer: coarse) {
+  /* 호버 효과 제거 (터치에서 잔상 방지) */
+  .series-card:hover { transform: none; box-shadow: var(--shadow); }
+  .single-card:hover { transform: none; box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { transform: none; }
+  .emoji-pick:hover { transform: none; }
+  .color-pick:hover { transform: none; }
+  .star:hover { transform: none; }
+
+  /* 삭제 버튼 항상 보이게 */
+  .ep-del { color: var(--text-sub) !important; }
+
+  /* 터치 피드백 */
+  .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-ghost:active { background: var(--sky-pale); }
+  .nav-btn:active { background: var(--sky-pale); }
+  .ep-item:active { background: rgba(86,180,245,0.12); }
+  .single-card:active { transform: scale(0.99); }
+  .series-card:active { transform: scale(0.99); }
+  .single-check-btn:active { transform: scale(0.92); }
+  .emoji-pick:active { transform: scale(1.1); border-color: var(--sky); }
+  .star:active { transform: scale(1.2); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img class="logo-icon" src="profile.jpg">
+    <div class="logo-text">잠뜰 TV 팬 웹 ✨</div>
+  </div>
+</header>
+
+<div class="nav-bar">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showTab('series',this)"><span class="ni">📺</span> 시리즈</button>
+    <button class="nav-btn" onclick="showTab('single',this)"><span class="ni">🎬</span> 단편 영상</button>
+    <button class="nav-btn" onclick="showTab('review',this)"><span class="ni">✍️</span> 영상 후기</button>
+  </div>
+</div>
+
+<div class="app-wrap">
+
+  <!-- 시리즈 탭 -->
+  <div class="panel active" id="tab-series">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="s-done">0</div><div class="stat-label">시청 완료</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-total">0</div><div class="stat-label">전체 에피소드</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-pct">0%</div><div class="stat-label">진행률</div></div>
+    </div>
+    <div class="section-header">
+      <div class="section-title">🎭 시리즈 목록</div>
+      <button class="btn-primary" onclick="openAddSeries()">+ 시리즈 추가</button>
+    </div>
+    <div class="series-list" id="series-list"></div>
+    <div id="no-series" class="empty-state" style="display:none"><div class="ei">🌸</div>아직 시리즈가 없어요!<br>시리즈 추가 버튼으로 만들어보세요~</div>
+  </div>
+
+  <!-- 단편 영상 탭 -->
+  <div class="panel" id="tab-single">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="v-done">0</div><div class="stat-label">시청 완료</div></div>
+      <div class="stat-card"><div class="stat-num" id="v-total">0</div><div class="stat-label">전체 단편</div></div>
+      <div class="stat-card"><div class="stat-num" id="v-pct">0%</div><div class="stat-label">진행률</div></div>
+    </div>
+    <div class="section-header">
+      <div class="section-title">🎬 단편 영상</div>
+      <button class="btn-primary" onclick="toggleAddSingle()">+ 영상 추가</button>
+    </div>
+
+    <div class="add-single-form" id="add-single-form">
+      <div class="form-row">
+        <label>영상 제목 *</label>
+        <input type="text" class="form-input" id="sf-title" placeholder="예: 덕개가 이길 수도 있는 게임 시즌2">
+      </div>
+      <div class="form-row">
+        <label>메모 (선택)</label>
+        <input type="text" class="form-input" id="sf-desc" placeholder="예: 도구 배틀 콘텐츠">
+      </div>
+      <div class="form-row">
+        <label>아이콘</label>
+        <div class="emoji-row" id="sf-emoji-row"></div>
+      </div>
+      <div class="form-row">
+        <label>색상</label>
+        <div class="color-row" id="sf-color-row"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn-ghost" onclick="toggleAddSingle()">취소</button>
+        <button class="btn-primary" onclick="saveSingle()">저장 ✓</button>
+      </div>
+    </div>
+
+    <div class="single-list" id="single-list"></div>
+    <div id="no-single" class="empty-state" style="display:none"><div class="ei">🎈</div>아직 단편 영상이 없어요!<br>영상 추가 버튼으로 기록해보세요~</div>
+  </div>
+
+  <!-- 영상 후기 탭 -->
+  <div class="panel" id="tab-review">
+    <button class="review-write-btn" onclick="toggleReviewForm()">✏️ 영상 후기 작성하기...</button>
+    <div class="review-form" id="review-form">
+      <div class="review-meta-row">
+        <select id="rv-type" onchange="onTypeChange()">
+          <option value="">종류 선택</option>
+          <option value="series">시리즈</option>
+          <option value="single">단편 영상</option>
+        </select>
+        <select id="rv-item" style="display:none"><option value="">선택</option></select>
+        <div class="star-row" id="star-row">
+          <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+          <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+        </div>
+      </div>
+      <textarea id="rv-text" placeholder="어떤 영상을 봤나요? 감상을 자유롭게 적어보세요! 🌟"></textarea>
+      <div class="review-form-actions">
+        <button class="btn-ghost" onclick="toggleReviewForm()">취소</button>
+        <button class="btn-primary" onclick="submitReview()">후기 저장 💾</button>
+      </div>
+    </div>
+    <div class="review-list" id="review-list"></div>
+    <div id="no-review" class="empty-state" style="display:none"><div class="ei">💭</div>아직 작성한 후기가 없어요.<br>영상을 보고 감상을 남겨보세요~</div>
+  </div>
+
+</div>
+
+<!-- 시리즈 모달 -->
+<div class="modal-overlay" id="modal-overlay" onclick="onOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">🌟 새 시리즈 추가</div>
+    <div class="form-row"><label>시리즈 이름 *</label><input type="text" class="form-input" id="f-name" placeholder="예: 미스터리 수사반"></div>
+    <div class="form-row"><label>설명 (선택)</label><input type="text" class="form-input" id="f-desc" placeholder="예: 추리·수사 장르 대표 시리즈"></div>
+    <div class="form-row"><label>아이콘 선택</label><div class="emoji-row" id="emoji-row"></div></div>
+    <div class="form-row"><label>카드 색상</label><div class="color-row" id="color-row"></div></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn-primary" onclick="saveSeries()">저장 ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* STATE */
+let series  = JSON.parse(localStorage.getItem('jt-series')  || '[]');
+let watched = JSON.parse(localStorage.getItem('jt-watched') || '{}');
+let singles = JSON.parse(localStorage.getItem('jt-singles') || '[]');
+let reviews = JSON.parse(localStorage.getItem('jt-reviews') || '[]');
+let editId=null, selEmoji='🎬', selColor='#c8e9ff', sfEmoji='🎬', sfColor='#c8e9ff', rvRating=0;
+
+const EMOJIS=['🎬','🔍','👁','🧟','🌀','🏃','✨','⚔️','🕵️','🌙','🔮','🏚️','🧩','💀','🌊','🎭','🌸','🐣','🍀','🎪'];
+const COLORS=['#c8e9ff','#a8e6cf','#ffcba4','#c9b8ff','#fff0a0','#ffb3b3','#b8e0d2','#ffd6e7'];
+
+function save() {
+  localStorage.setItem('jt-series',  JSON.stringify(series));
+  localStorage.setItem('jt-watched', JSON.stringify(watched));
+  localStorage.setItem('jt-singles', JSON.stringify(singles));
+  localStorage.setItem('jt-reviews', JSON.stringify(reviews));
+}
+
+function uid() { return '_'+Date.now()+Math.random().toString(36).slice(2,6); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* TABS */
+function showTab(name,btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* SERIES STATS */
+function updateSeriesStats() {
+  let total=0,done=0;
+  series.forEach(s=>{ total+=s.eps.length; done+=(watched[s.id]||[]).length; });
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-pct').textContent=total?Math.round(done/total*100)+'%':'0%';
+}
+
+/* SERIES RENDER */
+function renderSeries() {
+  const el=document.getElementById('series-list'), empty=document.getElementById('no-series');
+  if(!series.length){el.innerHTML='';empty.style.display='';updateSeriesStats();return;}
+  empty.style.display='none';
+  el.innerHTML=series.map(s=>{
+    const w=watched[s.id]||[], done=w.length;
+    const pct=s.eps.length?Math.round(done/s.eps.length*100):0;
+    const epsHtml=s.eps.map((ep,i)=>`
+      <div class="ep-item" onclick="toggleEp('${s.id}',${i})">
+        <span class="ep-num">${i+1}화</span>
+        <span class="ep-title">${esc(ep)}</span>
+        <div class="ep-check ${w.includes(i)?'done':''}">✓</div>
+        <button class="ep-del" onclick="delEp(event,'${s.id}',${i})">×</button>
+      </div>`).join('');
+    return `
+      <div class="series-card" id="sc-${s.id}">
+        <div class="series-card-head">
+          <div class="series-icon" style="background:${s.color}">${s.icon}</div>
+          <div class="series-info">
+            <div class="series-name">${esc(s.name)}</div>
+            <div class="series-desc">${esc(s.desc)}</div>
+            <div class="progress-wrap">
+              <div class="progress-bar"><div class="progress-fill" id="pf-${s.id}" style="width:${pct}%"></div></div>
+              <div class="progress-text" id="pt-${s.id}">${done} / ${s.eps.length}화 완료</div>
+            </div>
+            <button class="expand-btn" onclick="toggleEps('${s.id}')">에피소드 보기 ▾</button>
+          </div>
+          <div class="series-actions">
+            <button class="btn-icon" onclick="openEditSeries('${s.id}')">✏️</button>
+            <button class="btn-danger" onclick="delSeries('${s.id}')">삭제</button>
+          </div>
+        </div>
+        <div class="ep-list" id="eps-${s.id}">
+          <div class="ep-add-form">
+            <input type="text" id="ep-inp-${s.id}" placeholder="에피소드 제목 입력 후 엔터" onkeydown="addEpKey(event,'${s.id}')">
+            <button class="btn-primary" onclick="addEp('${s.id}')">추가</button>
+          </div>
+          ${epsHtml||'<div style="font-size:13px;color:var(--text-sub);padding:4px 0 6px">아직 에피소드가 없어요.</div>'}
+        </div>
+      </div>`;
+  }).join('');
+  updateSeriesStats();
+}
+
+function toggleEps(id) {
+  const el = document.getElementById('eps-' + id);
+  const card = document.getElementById('sc-' + id);
+  const btn = card.querySelector('.expand-btn');
+  
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? '에피소드 접기 ▴' : '에피소드 보기 ▾';
+}
+
+function toggleEp(sid,idx) {
+  if(!watched[sid]) watched[sid]=[];
+  const arr=watched[sid], pos=arr.indexOf(idx);
+  pos===-1?arr.push(idx):arr.splice(pos,1);
+  save();
+  document.getElementById('sc-'+sid).querySelectorAll('.ep-check')[idx].classList.toggle('done',arr.includes(idx));
+  const s=series.find(x=>x.id===sid), done=arr.length;
+  const pct=s.eps.length?Math.round(done/s.eps.length*100):0;
+  document.getElementById('pf-'+sid).style.width=pct+'%';
+  document.getElementById('pt-'+sid).textContent=done+' / '+s.eps.length+'화 완료';
+  updateSeriesStats();
+}
+
+function addEpKey(e,sid){if(e.key==='Enter')addEp(sid);}
+function addEp(sid){
+  const inp=document.getElementById('ep-inp-'+sid), val=inp.value.trim(); if(!val)return;
+  series.find(x=>x.id===sid).eps.push(val); inp.value=''; save(); renderSeries();
+  setTimeout(()=>{const el=document.getElementById('eps-'+sid);if(!el.classList.contains('open'))toggleEps(sid);},10);
+}
+function delEp(e,sid,idx){
+  e.stopPropagation();
+  const s=series.find(x=>x.id===sid); s.eps.splice(idx,1);
+  watched[sid]=(watched[sid]||[]).filter(i=>i!==idx).map(i=>i>idx?i-1:i);
+  save(); renderSeries();
+  setTimeout(()=>{const el=document.getElementById('eps-'+sid);if(el&&!el.classList.contains('open'))toggleEps(sid);},10);
+}
+function delSeries(sid){
+  if(!confirm('시리즈를 삭제할까요?'))return;
+  series=series.filter(s=>s.id!==sid); delete watched[sid]; save(); renderSeries();
+}
+
+/* SERIES MODAL */
+function buildPicker(eid,cid,curE,curC){
+  document.getElementById(eid).innerHTML=EMOJIS.map(em=>`<button class="emoji-pick ${em===curE?'selected':''}" onclick="pickEmoji(this,'${em}','${eid}')">${em}</button>`).join('');
+  document.getElementById(cid).innerHTML=COLORS.map(c=>`<button class="color-pick ${c===curC?'selected':''}" style="background:${c}" onclick="pickColor(this,'${c}','${cid}')"></button>`).join('');
+}
+function pickEmoji(btn,em,eid){
+  if(eid==='emoji-row')selEmoji=em; else sfEmoji=em;
+  btn.closest('.emoji-row').querySelectorAll('.emoji-pick').forEach(b=>b.classList.toggle('selected',b===btn));
+}
+function pickColor(btn,c,cid){
+  if(cid==='color-row')selColor=c; else sfColor=c;
+  btn.closest('.color-row').querySelectorAll('.color-pick').forEach(b=>b.classList.toggle('selected',b===btn));
+}
+function openAddSeries(){
+  editId=null; document.getElementById('modal-title').textContent='🌟 새 시리즈 추가';
+  document.getElementById('f-name').value=''; document.getElementById('f-desc').value='';
+  selEmoji='🎬'; selColor='#c8e9ff';
+  buildPicker('emoji-row','color-row',selEmoji,selColor);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openEditSeries(sid){
+  const s=series.find(x=>x.id===sid); editId=sid;
+  document.getElementById('modal-title').textContent='✏️ 시리즈 수정';
+  document.getElementById('f-name').value=s.name; document.getElementById('f-desc').value=s.desc;
+  selEmoji=s.icon; selColor=s.color;
+  buildPicker('emoji-row','color-row',selEmoji,selColor);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function onOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+function saveSeries(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('시리즈 이름을 입력해 주세요!');return;}
+  if(editId){const s=series.find(x=>x.id===editId);s.name=name;s.desc=document.getElementById('f-desc').value.trim();s.icon=selEmoji;s.color=selColor;}
+  else series.push({id:uid(),name,desc:document.getElementById('f-desc').value.trim(),icon:selEmoji,color:selColor,eps:[]});
+  save();closeModal();renderSeries();
+}
+
+/* SINGLES */
+function updateSingleStats(){
+  const total=singles.length,done=singles.filter(s=>s.watched).length;
+  document.getElementById('v-done').textContent=done;
+  document.getElementById('v-total').textContent=total;
+  document.getElementById('v-pct').textContent=total?Math.round(done/total*100)+'%':'0%';
+}
+function renderSingles(){
+  const el=document.getElementById('single-list'),empty=document.getElementById('no-single');
+  if(!singles.length){el.innerHTML='';empty.style.display='';updateSingleStats();return;}
+  empty.style.display='none';
+  el.innerHTML=singles.map(s=>`
+    <div class="single-card">
+      <div class="single-icon" style="background:${s.color}">${s.icon}</div>
+      <div class="single-info">
+        <div class="single-name">${esc(s.name)}</div>
+        <div class="single-desc">${esc(s.desc)}</div>
+        <div class="single-date">📅 ${s.date}</div>
+      </div>
+      <div class="single-actions">
+        <button class="single-check-btn ${s.watched?'done':''}" onclick="toggleSingle('${s.id}')">${s.watched?'✓':'○'}</button>
+        <button class="btn-danger" onclick="delSingle('${s.id}')">삭제</button>
+      </div>
+    </div>`).join('');
+  updateSingleStats();
+}
+function toggleSingle(id){const s=singles.find(x=>x.id===id);s.watched=!s.watched;save();renderSingles();}
+function delSingle(id){if(!confirm('삭제할까요?'))return;singles=singles.filter(s=>s.id!==id);save();renderSingles();}
+function toggleAddSingle(){
+  const f=document.getElementById('add-single-form');
+  f.classList.toggle('open');
+  if(f.classList.contains('open')){
+    sfEmoji='🎬';sfColor='#c8e9ff';
+    buildPicker('sf-emoji-row','sf-color-row',sfEmoji,sfColor);
+    document.getElementById('sf-title').value='';
+    document.getElementById('sf-desc').value='';
+  }
+}
+function saveSingle(){
+  const name=document.getElementById('sf-title').value.trim();
+  if(!name){alert('영상 제목을 입력해 주세요!');return;}
+  singles.unshift({id:uid(),name,desc:document.getElementById('sf-desc').value.trim(),icon:sfEmoji,color:sfColor,watched:false,date:new Date().toLocaleDateString('ko-KR')});
+  save();toggleAddSingle();renderSingles();
+}
+
+/* REVIEWS */
+function onTypeChange(){
+  const type=document.getElementById('rv-type').value;
+  const sel=document.getElementById('rv-item');
+  if(!type){sel.style.display='none';return;}
+  sel.style.display='';
+  const items=type==='series'?series:singles;
+  sel.innerHTML='<option value="">선택</option>'+items.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+}
+function toggleReviewForm(){
+  const f=document.getElementById('review-form');
+  f.classList.toggle('open');
+  if(!f.classList.contains('open')){
+    document.getElementById('rv-text').value='';
+    document.getElementById('rv-type').value='';
+    document.getElementById('rv-item').style.display='none';
+    rvRating=0;updateStars(0);
+  }
+}
+function updateStars(n){document.querySelectorAll('#star-row .star').forEach((s,i)=>s.classList.toggle('lit',i<n));}
+document.getElementById('star-row').addEventListener('click',e=>{
+  const s=e.target.closest('.star');if(!s)return;
+  rvRating=+s.dataset.v;updateStars(rvRating);
+});
+function submitReview(){
+  const text=document.getElementById('rv-text').value.trim();
+  if(!text){alert('후기 내용을 입력해 주세요!');return;}
+  const type=document.getElementById('rv-type').value;
+  const itemId=document.getElementById('rv-item').value;
+  const label=type==='series'?(series.find(x=>x.id===itemId)?.name||''):type==='single'?(singles.find(x=>x.id===itemId)?.name||''):'';
+  const typeLabel=type==='series'?'시리즈':type==='single'?'단편':'';
+  reviews.unshift({id:uid(),label,typeLabel,text,rating:rvRating,date:new Date().toLocaleDateString('ko-KR')});
+  save();toggleReviewForm();renderReviews();
+}
+function delReview(id){if(!confirm('후기를 삭제할까요?'))return;reviews=reviews.filter(r=>r.id!==id);save();renderReviews();}
+function renderReviews(){
+  const el=document.getElementById('review-list'),empty=document.getElementById('no-review');
+  if(!reviews.length){el.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  el.innerHTML=reviews.map(r=>`
+    <div class="review-card">
+      <div class="review-card-top">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          ${r.label?`<span class="review-tag">${r.typeLabel?`<span style="opacity:.6;font-size:10px">${esc(r.typeLabel)}</span> `:''}${esc(r.label)}</span>`:''}
+          <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+        </div>
+        <button class="review-del-btn" onclick="delReview('${r.id}')">×</button>
+      </div>
+      <div class="review-body">${esc(r.text)}</div>
+      <div class="review-date">📅 ${r.date}</div>
+    </div>`).join('');
+}
+
+/* INIT */
+renderSeries();renderSingles();renderReviews();
+</script>
+</body>
+</html>
